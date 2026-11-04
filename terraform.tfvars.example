@@ -1,0 +1,45 @@
+# Copy to terraform.tfvars and fill in values for your TEST tenant.
+# terraform.tfvars is gitignored, so real UPNs and object IDs never get committed.
+
+name_prefix = "ZT"
+
+# Keep report-only until you've reviewed the impact in the sign-in logs.
+ca_policy_state = "enabledForReportingButNotEnforced"
+
+# Break-glass accounts: create these manually first.
+emergency_access_account_object_ids = [
+  "00000000-0000-0000-0000-000000000001",
+  "00000000-0000-0000-0000-000000000002",
+]
+
+allowed_countries = ["US"]
+
+require_phishing_resistant_mfa_for_admins = false
+enable_risk_based_policies                = true
+
+# Direct PIM eligibility: activate the role just-in-time in PIM.
+pim_eligible_role_assignments = {
+  alice_security_reader = {
+    user_principal_name = "alice@contoso.onmicrosoft.com"
+    role                = "SecurityReader"
+    justification       = "SOC analyst read access, activated on demand."
+  }
+}
+
+# PIM for Groups: activation rules (MFA, justification, time limit, approval) in code.
+privileged_access_groups = {
+  SecurityOps = {
+    role                    = "SecurityAdministrator"
+    eligible_member_upns    = ["bob@contoso.onmicrosoft.com"]
+    max_activation_duration = "PT4H"
+    require_approval        = false
+  }
+
+  # IdentityAdmins = {
+  #   role                     = "PrivilegedRoleAdministrator"
+  #   eligible_member_upns     = ["carol@contoso.onmicrosoft.com"]
+  #   max_activation_duration  = "PT2H"
+  #   require_approval         = true
+  #   approver_group_object_id = "00000000-0000-0000-0000-000000000003"
+  # }
+}
